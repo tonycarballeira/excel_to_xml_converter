@@ -1,0 +1,14 @@
+<p>Rows data from excel spreadsheet:</p>
+
+<br>
+
+<% @rows.each do |row| %>
+	<%= row %>
+<%end%>
+
+<br>
+<br>
+
+<p>XML Format:</p>
+
+<textarea><%= @builder.to_xml %></textarea>>
