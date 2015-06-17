@@ -1,11 +1,17 @@
 require "rubygems"
 require "sinatra"
 require "spreadsheet"
-require "nokogiri"	
+require "nokogiri"
+require "sinatra/cookies"	
 
+enable :sessions
 
 Spreadsheet.client_encoding = 'UTF-8'
 Tilt.register Tilt::ERBTemplate, 'html.erb'
+
+before do
+	@file_names = []
+end
 
 get "/"  do
 	erb :index
@@ -17,7 +23,13 @@ post "/" do
     @file = params['myfile'][:tempfile]
     @filename = params['myfile'][:filename]
   end
-  @book = Spreadsheet.open('uploads/'+@filename)
+    cookies[:filename] = @filename
+    redirect '/xml'
+end
+
+get "/xml" do
+	@file_name = cookies[:filename] 
+  @book = Spreadsheet.open('uploads/'+@file_name)
   @sheets = @book.worksheets
   @rows = []
 	  
@@ -31,7 +43,7 @@ post "/" do
 	@builder = Nokogiri::XML::Builder.new do |xml|
 	  xml.root {
 	    xml.records {
-	      @rows.each do |o|
+		      @rows.each do |o|
 	        xml.record {
 	          xml.name_   o[0]
 	          xml.month_  o[1]
@@ -44,5 +56,5 @@ post "/" do
 	end
 
   erb :show_image
-end
 
+end
